@@ -1,13 +1,19 @@
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
 public class Duke {
     static String saveFilePath = "data/duke.txt";
 
+private static Date parseDate(String dateString) throws ParseException{
+    return new SimpleDateFormat("dd/MM/yyyy HHmm").parse(dateString);
+}
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
         ArrayList<Task> taskList = new ArrayList<>();
         try{
             FileInputStream fileInput = new FileInputStream(saveFilePath);
@@ -20,12 +26,6 @@ public class Duke {
         } catch(IOException | ClassNotFoundException e){
             throw new DukeException("Loading failed");
         }
-
-
-
-
-
-
 
         Scanner scan  = new Scanner(System.in);
         String logo = " ____        _        \n"
@@ -71,7 +71,8 @@ public class Duke {
 
                 case "deadline":
                     String[] deadlineInfo = input.substring(8).split(" /by ");
-                    Deadline newDeadline = new Deadline(deadlineInfo[0], deadlineInfo[1]);
+                    Date deadLineDate = parseDate(deadlineInfo[1]);
+                    Deadline newDeadline = new Deadline(deadlineInfo[0], deadLineDate);
                     taskList.add(newDeadline);
                     System.out.println("Got it. I've added this task: ");
                     System.out.println("  " + newDeadline.toString());
@@ -80,7 +81,8 @@ public class Duke {
 
                 case "event":
                     String[] eventInfo = input.substring(5).split(" /at ");
-                    Events newEvent = new Events(eventInfo[0], eventInfo[1]);
+                    Date eventDate = parseDate(eventInfo[1]);
+                    Events newEvent = new Events(eventInfo[0], eventDate);
                     taskList.add(newEvent);
                     System.out.println("Got it. I've added this task: ");
                     System.out.println("  " + newEvent.toString());
