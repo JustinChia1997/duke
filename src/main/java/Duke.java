@@ -1,9 +1,32 @@
+import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Duke {
+    static String saveFilePath = "data/duke.txt";
+
+
     public static void main(String[] args) {
         ArrayList<Task> taskList = new ArrayList<>();
+        try{
+            FileInputStream fileInput = new FileInputStream(saveFilePath);
+            ObjectInputStream inputter = new ObjectInputStream(fileInput);
+            taskList = (ArrayList<Task>)inputter.readObject();
+
+            inputter.close();
+            fileInput.close();
+
+        } catch(IOException | ClassNotFoundException e){
+            throw new DukeException("Loading failed");
+        }
+
+
+
+
+
+
+
         Scanner scan  = new Scanner(System.in);
         String logo = " ____        _        \n"
                 + "|  _ \\ _   _| | _____ \n"
@@ -69,35 +92,18 @@ public class Duke {
 
             }
 
+            try{
+                FileOutputStream fileOutput = new FileOutputStream(saveFilePath);
+                ObjectOutputStream outputter = new ObjectOutputStream(fileOutput);
+                outputter.writeObject(taskList);
 
+                outputter.close();
+                fileOutput.close();
 
-            /*
-            if (command.equals("bye")){
-                System.out.println("Bye. Hope to see you again soon!");
-                System.exit(0);
+            } catch(IOException e){
+                throw new DukeException("File could not save");
             }
 
-            else if(command.equals("list")){
-                for(int i=0; i < taskList.size(); i+=1){
-                    System.out.println("Here are the tasks in your list: ");
-                    System.out.println(i+1 + "." + taskList.get(i).toString());
-                }
-
-            }
-
-            else if(input.split(" ")[0].equals("done")){
-                int taskNumber = Integer.parseInt(input.split(" ")[1]) -1;
-                taskList.get(taskNumber).markAsDone();
-                System.out.println("Nice! I've marked this task as done:");
-                System.out.println("  " + taskList.get(taskNumber).toString());
-            }
-
-            else{
-                Task newTask = new Task(input);
-                taskList.add(newTask);
-                System.out.println("added: " + input);
-            }
-             */
         }
     }
 }
