@@ -64,6 +64,20 @@ public class Duke {
                     System.out.println("Now you have " + taskList.size() + " tasks in the list");
                     break;
 
+                case "find":
+                    String searchText = input.substring(4).trim();
+                    ArrayList<Task> filteredList = new ArrayList<>();
+                    for(Task task: taskList){
+                        if(task.getDescription().contains(searchText)){
+                            filteredList.add(task);
+                        }
+                    }
+                    for(int i=0; i < filteredList.size(); i+=1){
+                        System.out.println(i+1 + "." + filteredList.get(i).toString());
+                    }
+
+                    break;
+
                 default:
                     System.out.println("☹ OOPS!!! I'm sorry, but I don't know what that means :-(");
 
