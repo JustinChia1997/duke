@@ -11,6 +11,7 @@ public class Duke {
                 + "| |_| | |_| |   <  __/\n"
                 + "|____/ \\__,_|_|\\_\\___|\n";
         System.out.println("Hello from\n" + logo);
+        
         while(scan.hasNext()){
             String input = scan.nextLine();
             String command = input.split(" ")[0];
