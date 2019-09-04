@@ -1,9 +1,24 @@
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Duke {
     public static void main(String[] args) {
         ArrayList<Task> taskList = new ArrayList<>();
+        String saveFilePath = "data/duke.txt";
+        try{
+            FileInputStream fileInput = new FileInputStream(saveFilePath);
+            ObjectInputStream inputter = new ObjectInputStream(fileInput);
+            taskList = (ArrayList<Task>)inputter.readObject();
+
+            inputter.close();
+            fileInput.close();
+
+        } catch(IOException | ClassNotFoundException e){
+            throw new DukeException("Loading failed");
+        }
+
+
         Scanner scan  = new Scanner(System.in);
         String logo = " ____        _        \n"
                 + "|  _ \\ _   _| | _____ \n"
@@ -11,6 +26,7 @@ public class Duke {
                 + "| |_| | |_| |   <  __/\n"
                 + "|____/ \\__,_|_|\\_\\___|\n";
         System.out.println("Hello from\n" + logo);
+        
         while(scan.hasNext()){
             String input = scan.nextLine();
             String command = input.split(" ")[0];
@@ -63,7 +79,7 @@ public class Duke {
                     System.out.println("  " + newEvent.toString());
                     System.out.println("Now you have " + taskList.size() + " tasks in the list");
                     break;
-
+                    
                 case "find":
                     String searchText = input.substring(4).trim();
                     ArrayList<Task> filteredList = new ArrayList<>();
@@ -78,9 +94,29 @@ public class Duke {
 
                     break;
 
+                case "delete":
+                    int index = Integer.parseInt(input.substring(6).trim());
+                    System.out.println("Noted. I've removed this task:");
+                    System.out.println(taskList.get(index-1).toString());
+                    taskList.remove(index-1);
+                    System.out.println("Now you have " + taskList.size() + " tasks in the list");
+                    break;
+
                 default:
                     System.out.println("☹ OOPS!!! I'm sorry, but I don't know what that means :-(");
 
+            }
+
+            try{
+                FileOutputStream fileOutput = new FileOutputStream(saveFilePath);
+                ObjectOutputStream outputter = new ObjectOutputStream(fileOutput);
+                outputter.writeObject(taskList);
+
+                outputter.close();
+                fileOutput.close();
+
+            } catch(IOException e){
+                throw new DukeException("File could not save");
             }
 
 
