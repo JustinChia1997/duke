@@ -4,20 +4,10 @@ import java.util.Scanner;
 
 public class Duke {
     public static void main(String[] args) {
-        ArrayList<Task> taskList = new ArrayList<>();
+        TaskList taskList;
         String saveFilePath = "data/duke.txt";
-        try{
-            FileInputStream fileInput = new FileInputStream(saveFilePath);
-            ObjectInputStream inputter = new ObjectInputStream(fileInput);
-            taskList = (ArrayList<Task>)inputter.readObject();
-
-            inputter.close();
-            fileInput.close();
-
-        } catch(IOException | ClassNotFoundException e){
-            throw new DukeException("Loading failed");
-        }
-
+        Storage storage = new Storage(saveFilePath);
+        taskList = new TaskList(storage.load());
 
         Scanner scan  = new Scanner(System.in);
         String logo = " ____        _        \n"
@@ -29,7 +19,7 @@ public class Duke {
         
         while(scan.hasNext()){
             String input = scan.nextLine();
-            String command = input.split(" ")[0];
+            String command = Parser.findCommandWord(input);
             switch(command){
                 case "bye":
                     System.out.println("Bye. Hope to see you again soon!");
@@ -38,22 +28,22 @@ public class Duke {
                 case "list":
                     System.out.println("Here are the tasks in your list: ");
                     for(int i=0; i < taskList.size(); i+=1){
-                        System.out.println(i+1 + "." + taskList.get(i).toString());
+                        System.out.println(i+1 + "." + taskList.getTask(i).toString());
                     }
                     break;
 
                 case "done":
                     int taskNumber = Integer.parseInt(input.split(" ")[1]) -1;
-                    taskList.get(taskNumber).markAsDone();
+                    taskList.getTask(taskNumber).markAsDone();
                     System.out.println("Nice! I've marked this task as done:");
-                    System.out.println("  " + taskList.get(taskNumber).toString());
+                    System.out.println("  " + taskList.getTask(taskNumber).toString());
                     break;
 
                 case "todo" :
-                    String description = input.substring(4).trim();
+                    String description = Parser.getTodoDescription(input);
                     if(description.length()>0) {
                         ToDo newToDo = new ToDo(description);
-                        taskList.add(newToDo);
+                        taskList.addTask(newToDo);
                         System.out.println("Got it. I've added this task: ");
                         System.out.println("  " + newToDo.toString());
                         System.out.println("Now you have " + taskList.size() + " tasks in the list");
@@ -65,7 +55,7 @@ public class Duke {
                 case "deadline":
                     String[] deadlineInfo = input.substring(8).split(" /by ");
                     Deadline newDeadline = new Deadline(deadlineInfo[0], deadlineInfo[1]);
-                    taskList.add(newDeadline);
+                    taskList.addTask(newDeadline);
                     System.out.println("Got it. I've added this task: ");
                     System.out.println("  " + newDeadline.toString());
                     System.out.println("Now you have " + taskList.size() + " tasks in the list");
@@ -74,7 +64,7 @@ public class Duke {
                 case "event":
                     String[] eventInfo = input.substring(5).split(" /at ");
                     Events newEvent = new Events(eventInfo[0], eventInfo[1]);
-                    taskList.add(newEvent);
+                    taskList.addTask(newEvent);
                     System.out.println("Got it. I've added this task: ");
                     System.out.println("  " + newEvent.toString());
                     System.out.println("Now you have " + taskList.size() + " tasks in the list");
@@ -82,14 +72,12 @@ public class Duke {
                     
                 case "find":
                     String searchText = input.substring(4).trim();
-                    ArrayList<Task> filteredList = new ArrayList<>();
-                    for(Task task: taskList){
-                        if(task.getDescription().contains(searchText)){
-                            filteredList.add(task);
-                        }
+                    TaskList searchList = taskList.search(searchText);
+                    for(int i=0; i < searchList.size(); i+=1){
+                        System.out.println(i+1 + "." + searchList.getTask(i).toString());
                     }
-                    for(int i=0; i < filteredList.size(); i+=1){
-                        System.out.println(i+1 + "." + filteredList.get(i).toString());
+                    if(searchList.size() == 0){
+                        System.out.println("Could not find such a task");
                     }
 
                     break;
@@ -97,8 +85,8 @@ public class Duke {
                 case "delete":
                     int index = Integer.parseInt(input.substring(6).trim());
                     System.out.println("Noted. I've removed this task:");
-                    System.out.println(taskList.get(index-1).toString());
-                    taskList.remove(index-1);
+                    System.out.println(taskList.getTask(index-1).toString());
+                    taskList.removeTask(index-1);
                     System.out.println("Now you have " + taskList.size() + " tasks in the list");
                     break;
 
@@ -107,17 +95,7 @@ public class Duke {
 
             }
 
-            try{
-                FileOutputStream fileOutput = new FileOutputStream(saveFilePath);
-                ObjectOutputStream outputter = new ObjectOutputStream(fileOutput);
-                outputter.writeObject(taskList);
-
-                outputter.close();
-                fileOutput.close();
-
-            } catch(IOException e){
-                throw new DukeException("File could not save");
-            }
+            storage.save(taskList.getTaskList());
 
 
 
