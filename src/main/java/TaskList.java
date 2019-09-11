@@ -27,13 +27,23 @@ public class TaskList {
         taskList.add(task);
     }
 
+
+    /**
+     * Removes the task from the tasklist using the index given
+     * @param index is the index of the targeted class for deletion
+     * @return a {@link Task} which is the deleted task as requested
+     * */
     public Task removeTask(int index){
         Task task = this.taskList.get(index);
         taskList.remove(index);
         return task;
     }
 
-
+    /**
+     * Searches the current tasklist for a task with the relevant description
+     * @param searchQuery is the string which the users wants to match with a description of a task in the tasklist
+     * @return a {@link TaskList} which is the list of {@link Task} which matches the search query
+     * */
     public TaskList search(String searchQuery){
         ArrayList<Task> searchList = new ArrayList<>();
         for(Task task : this.taskList){
